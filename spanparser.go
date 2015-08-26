@@ -2,7 +2,7 @@ package fipmd
 
 import (
 	"bytes"
-	. "github.com/fipress/fiputil
+	. "github.com/fipress/fiputil"
 )
 
 /*func parsePlainUntil(input []byte, until byte,skipFuncs ...func([]byte) int) (ps []*plain, idx int) {
