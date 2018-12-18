@@ -84,7 +84,7 @@ func TestA(t *testing.T) {
 }
 
 func TestParseFile(t *testing.T) {
-	path := "/work/fip/scala-basic/src/content/en/7.4.map.md"
+	path := "test.md"
 	c, e := ParseFile(path)
 	if e != nil {
 		t.Log("err:", e)

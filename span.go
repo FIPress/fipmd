@@ -7,12 +7,17 @@ import (
 
 type span struct {
 	tag     string
+	class   string
 	content []byte
 }
 
 func (s *span) html(buf *bytes.Buffer) {
-	if len(s.tag) != 0 {
-		buf.Write(startTag(s.tag))
+	if s.tag != "" {
+		if s.class == "" {
+			buf.Write(startTag(s.tag))
+		} else {
+			buf.Write(startTagWithClass(s.tag, s.class))
+		}
 	}
 	if len(s.content) != 0 {
 		buf.Write(s.content)
@@ -43,7 +48,7 @@ type Plain struct {
 }
 
 func NewPlain(content []byte) *Plain {
-	return &Plain{&span{"", content}}
+	return &Plain{&span{"", "", content}}
 }
 
 func (p *Plain) execHooks(parser *Parser) {
@@ -57,7 +62,7 @@ type RawHtml struct {
 }
 
 func NewRawHtml(content []byte) *RawHtml {
-	return &RawHtml{&span{"", content}}
+	return &RawHtml{&span{"", "", content}}
 }
 
 func (r *RawHtml) execHooks(parser *Parser) {
@@ -154,7 +159,7 @@ type Em struct {
 }
 
 func NewEm(content []byte) *Em {
-	return &Em{&span{"em", content}}
+	return &Em{&span{"em", "", content}}
 }
 
 func (e *Em) execHooks(parser *Parser) {
@@ -168,7 +173,7 @@ type Strong struct {
 }
 
 func NewStrong(content []byte) *Strong {
-	return &Strong{&span{"strong", content}}
+	return &Strong{&span{"strong", "", content}}
 }
 
 func (s *Strong) execHooks(parser *Parser) {
@@ -182,7 +187,7 @@ type Del struct {
 }
 
 func NewDel(content []byte) *Del {
-	return &Del{&span{"del", content}}
+	return &Del{&span{"del", "", content}}
 }
 
 func (d *Del) execHooks(parser *Parser) {
@@ -196,12 +201,16 @@ type Code struct {
 }
 
 func NewCode(content []byte) *Code {
-	return &Code{&span{"code", content}}
+	return &Code{&span{"code", "", content}}
+}
+
+func NewCodeWithLang(content []byte, lang string) *Code {
+	return &Code{&span{"code", "language-" + lang, content}}
 }
 
 func (c *Code) html(buf *bytes.Buffer) {
 	//todo:unescape
-	writeSpanLiterally("code", c.content, buf)
+	writeSpanLiterally("code", c.class, c.content, buf)
 }
 
 func (c *Code) execHooks(parser *Parser) {

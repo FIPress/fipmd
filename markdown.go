@@ -79,9 +79,14 @@ func writeSpan(tag string, content []byte, buf *bytes.Buffer) {
 	buf.Write(endTag(tag))
 }
 
-func writeSpanLiterally(tag string, content []byte, buf *bytes.Buffer) {
-	buf.Write(startTag(tag))
-	HtmlEscapeLiterallyToBuffer(content, buf)
+func writeSpanLiterally(tag string, class string, content []byte, buf *bytes.Buffer) {
+	if class == "" {
+		buf.Write(startTag(tag))
+	} else {
+		buf.Write(startTagWithClass(tag, class))
+	}
+	//HtmlEscapeLiterallyToBuffer(content, buf)
+	buf.Write(content)
 	buf.Write(endTag(tag))
 }
 
@@ -91,6 +96,19 @@ func startTag(tag string) []byte {
 	b[0] = '<'
 	copy(b[1:l-1], tag)
 	b[l-1] = '>'
+
+	return b
+}
+
+func startTagWithClass(tag, class string) []byte {
+	lTag := len(tag)
+	l := lTag + len(class) + 11
+	b := make([]byte, l)
+	b[0] = '<'
+	copy(b[1:lTag+1], tag)
+	copy(b[lTag+1:lTag+9], " class=\"")
+	copy(b[lTag+9:l-2], class)
+	copy(b[l-2:], "\">")
 
 	return b
 }

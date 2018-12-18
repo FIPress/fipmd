@@ -2,7 +2,7 @@ package fipmd
 
 import (
 	"bytes"
-	. "fiputil"
+	. "github.com/fipress/fiputil"
 )
 
 /*func parsePlainUntil(input []byte, until byte,skipFuncs ...func([]byte) int) (ps []*plain, idx int) {
@@ -69,6 +69,7 @@ L:
 			hrefTo = i
 			delta, found := SkipUntil(input[i:], '"')
 			if !found {
+				i++
 				continue L
 			}
 			i += delta + 1

@@ -62,13 +62,28 @@ func parsePara(input []byte, isBlock bool, skipFuncs ...func([]byte) int) (*Para
 func parseCode(input []byte, skipFuncs ...func([]byte) int) (markdown, int) {
 	if len(input) > 6 {
 		buf := new(bytes.Buffer)
-		i := 3 + skipLeft(input[3:])
+		i := 3
+		lang := ""
+		if IsLetter(input[3]) {
+			found, langBytes, delta := extractTextUntilSpace(input[3:], skipFuncs)
+			if found && len(langBytes) != 0 {
+				lang = string(langBytes)
+				i += delta
+			}
+		}
+
+		i += skipLeft(input[i:])
+
 		for i < len(input) {
 			i += applySkipFuncs(input[i:], skipFuncs)
 			if prefixFenced(input[i:]) {
 				i += 3
 				i += SkipSpaceAndLineEnd(input[i:])
-				return NewCodeBlock(NewCode(buf.Bytes())), i
+				if lang == "" {
+					return NewPre([]markdown{NewCode(buf.Bytes())}), i
+				} else {
+					return NewPre([]markdown{NewCodeWithLang(buf.Bytes(), lang)}), i
+				}
 			} else if buf.Len() != 0 {
 				buf.WriteByte('\n')
 			}

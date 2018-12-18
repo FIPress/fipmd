@@ -106,6 +106,15 @@ func TestLink(t *testing.T) {
 		t.Fail()
 	}
 
+	input = `[test](http://abc title)as`
+	el, idx = parseInlineLink([]byte(input), nil)
+	html = el.Html()
+	if html != `<a href="http://abc">test</a>` ||
+		idx != len(input)-2 {
+		t.Log("parseInlineLink, output:", html, idx, len(input))
+		t.Fail()
+	}
+
 	input = `[test] (http://abc "title")as`
 	el, idx = parseInlineLink([]byte(input), nil)
 	if el != nil || idx != 0 {
@@ -149,7 +158,35 @@ func TestCode(t *testing.T) {
 	input := "```\nfunc Test(a int) {\n &copy;\nprint(a)}\n```"
 	el, idx := parseCode([]byte(input))
 	html := el.Html()
-	if html != "<pre><code>func Test(a int) {\n &amp;copy;\nprint(a)}</code></pre>" ||
+	if html != "<pre><code>func Test(a int) {\n &copy;\nprint(a)}</code></pre>" ||
+		idx != len(input) {
+		t.Log("parseCode failed, output:", html, idx, len(input))
+		t.Fail()
+	}
+}
+
+func TestCodeBlock1(t *testing.T) {
+	input := "```" + `go
+		println("a || b", a || b)
+		println("a && b", a && b)
+` + "```"
+	el, idx := parseCode([]byte(input))
+	html := el.Html()
+	t.Log(idx)
+	t.Log(html)
+	/*if html != "<pre><code class=\"language-go\">func Test(a int) {\n &amp;copy;\nprint(a)}</code></pre>" ||
+		idx != len(input) {
+		t.Log("parseCode failed, output:", html, idx, len(input))
+		t.Fail()
+	}*/
+}
+
+func TestCodeWithLang(t *testing.T) {
+	input := "```go func Test(a int) {\n &copy;\nprint(\"a\")}\n```"
+	el, idx := parseCode([]byte(input))
+	html := el.Html()
+
+	if html != "<pre><code class=\"language-go\">func Test(a int) {\n &copy;\nprint(\"a\")}</code></pre>" ||
 		idx != len(input) {
 		t.Log("parseCode failed, output:", html, idx, len(input))
 		t.Fail()

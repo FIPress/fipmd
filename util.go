@@ -220,6 +220,18 @@ func extractTextUntilArray(input []byte, array []byte, skipFuncs []func([]byte) 
 	return extractTextUntilFunc(input, endFunc, skipFuncs)
 }
 
+func extractTextUntilSpace(input []byte, skipFuncs []func([]byte) int) (bool, []byte, int) {
+	endFunc := func(input []byte) (bool, int) {
+		if IsLineEnd(input[0]) || IsSpace(input[0]) {
+			return true, 1
+		} else {
+			return false, 0
+		}
+	}
+
+	return extractTextUntilFunc(input, endFunc, skipFuncs)
+}
+
 /*
 func extractUntilCharOrBlockEnd(input []byte, c byte,skipFuncs []func([]byte) int) (idx int, found bool) {
 	i := 0

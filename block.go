@@ -10,16 +10,26 @@ type container interface {
 }
 
 type block struct {
-	tag string
-	els []markdown
+	tag   string
+	class string
+	els   []markdown
 }
 
 func newBlock(tag string) *block {
-	return &block{tag, make([]markdown, 0)}
+	return &block{tag: tag, els: make([]markdown, 0)}
+}
+
+func newBlockWithClass(tag, class string) *block {
+	return &block{tag, class, make([]markdown, 0)}
 }
 
 func (b *block) html(buf *bytes.Buffer) {
-	buf.Write(startTag(b.tag))
+	if b.class == "" {
+		buf.Write(startTag(b.tag))
+	} else {
+		buf.Write(startTagWithClass(b.tag, b.class))
+	}
+
 	for _, el := range b.els {
 		if el != nil {
 			el.html(buf)
@@ -161,14 +171,26 @@ func (u *Ul) execHooks(parser *Parser) {
 	}
 }
 
+type Pre struct {
+	*block
+}
+
+func NewPre(els []markdown) *Pre {
+	return &Pre{&block{tag: "pre", els: els}}
+}
+
 type CodeBlock struct {
 	*block
 }
 
-func NewCodeBlock(code markdown) *CodeBlock {
+func NewCodeBlock(code markdown, lang string) *CodeBlock {
 	//b := &block{"pre",make([]markdown, 0)}
 	//b.add(code)
-	return &CodeBlock{&block{"pre", []markdown{code}}}
+	if lang == "" {
+		return &CodeBlock{&block{tag: "code", els: []markdown{code}}}
+	} else {
+		return &CodeBlock{&block{tag: "code", class: "language-" + lang, els: []markdown{code}}}
+	}
 }
 
 func (cb *CodeBlock) execHooks(parser *Parser) {
