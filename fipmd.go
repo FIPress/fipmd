@@ -54,6 +54,10 @@ func ParseFile(path string) (content []byte, err error) {
 	return
 }
 
+func ParseString(input string) string {
+	return string(Parse([]byte(input)))
+}
+
 func Parse(input []byte) []byte {
 	els := parse(input)
 

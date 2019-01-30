@@ -59,13 +59,13 @@ func parsePara(input []byte, isBlock bool, skipFuncs ...func([]byte) int) (*Para
 	return p,idx
 }*/
 
-func parseCode(input []byte, skipFuncs ...func([]byte) int) (markdown, int) {
+func parseCode(input []byte) (markdown, int) {
 	if len(input) > 6 {
-		buf := new(bytes.Buffer)
+		//buf := new(bytes.Buffer)
 		i := 3
 		lang := ""
 		if IsLetter(input[3]) {
-			found, langBytes, delta := extractTextUntilSpace(input[3:], skipFuncs)
+			found, langBytes, delta := extractTextUntilSpace(input[3:], nil)
 			if found && len(langBytes) != 0 {
 				lang = string(langBytes)
 				i += delta
@@ -74,8 +74,24 @@ func parseCode(input []byte, skipFuncs ...func([]byte) int) (markdown, int) {
 
 		i += skipLeft(input[i:])
 
-		for i < len(input) {
-			i += applySkipFuncs(input[i:], skipFuncs)
+		delta, found := SkipUntilArray(input[i:], []byte{'\n', '`', '`', '`'})
+		if found {
+			from := i
+			end := from + delta
+			i += delta + 4
+			empty, delta := IsBlankLine(input[i:])
+			if empty {
+				if lang == "" {
+					return NewPre([]markdown{NewCode(input[from:end])}), i + delta
+				} else {
+					return NewPre([]markdown{NewCodeWithLang(input[from:end], lang)}), i + delta
+				}
+			}
+
+		}
+
+		/*for i < len(input) {
+			//i += applySkipFuncs(input[i:], skipFuncs)
 			if prefixFenced(input[i:]) {
 				i += 3
 				i += SkipSpaceAndLineEnd(input[i:])
@@ -99,7 +115,7 @@ func parseCode(input []byte, skipFuncs ...func([]byte) int) (markdown, int) {
 			} else {
 				return nil, 0
 			}
-		}
+		}*/
 	}
 
 	return nil, 0

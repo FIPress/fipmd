@@ -182,11 +182,11 @@ func TestCodeBlock1(t *testing.T) {
 }
 
 func TestCodeWithLang(t *testing.T) {
-	input := "```go func Test(a int) {\n &copy;\nprint(\"a\")}\n```"
+	input := "```go func Test(a int) {\n `&copy`;\nprint(\"a\")}\n```"
 	el, idx := parseCode([]byte(input))
 	html := el.Html()
 
-	if html != "<pre><code class=\"language-go\">func Test(a int) {\n &copy;\nprint(\"a\")}</code></pre>" ||
+	if html != "<pre><code class=\"language-go\">func Test(a int) {\n `&copy`;\nprint(\"a\")}</code></pre>" ||
 		idx != len(input) {
 		t.Log("parseCode failed, output:", html, idx, len(input))
 		t.Fail()
